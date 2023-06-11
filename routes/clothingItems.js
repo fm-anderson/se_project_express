@@ -7,8 +7,6 @@ const {
   deleteItem,
 } = require("../controllers/clothingItems");
 
-//CRUD
-
 //CREATE
 router.post("/", createItem);
 
