@@ -1,4 +1,9 @@
 const ClothingItem = require("../models/clothingItem");
+const {
+  INVALID_DATA_ERROR,
+  NOTFOUND_ERROR,
+  DEFAULT_ERROR,
+} = require("../utils/error");
 
 const createItem = (req, res) => {
   const { name, weather, imageURL } = req.body;
@@ -8,16 +13,26 @@ const createItem = (req, res) => {
     .then((item) => {
       res.status(201).send({ data: item });
     })
-    .catch((err) => {
-      res.status(500).send({ message: "Error from createItem", err });
+    .catch((error) => {
+      if (error.name === "ValidationError") {
+        res
+          .status(INVALID_DATA_ERROR.error)
+          .send({ message: "Invalid data provided" });
+      } else {
+        res
+          .status(DEFAULT_ERROR.error)
+          .send({ message: "An error has occured on the server" });
+      }
     });
 };
 
 const getItems = (req, res) => {
   ClothingItem.find({})
     .then((items) => res.status(200).send(items))
-    .catch((err) => {
-      res.status(500).send({ message: "Error from getItems", err });
+    .catch(() => {
+      res
+        .status(DEFAULT_ERROR.error)
+        .send({ message: "An error has occured on the server" });
     });
 };
 
@@ -25,16 +40,22 @@ const updateItem = (req, res) => {
   const { itemId } = req.params;
   const { imageURL } = req.body;
 
-  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageURL } })
+  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } })
     .orFail()
-    .then((item) =>
-      res
-        .status(200)
-        .send({ data: item })
-        .catch((err) => {
-          res.status(500).send({ message: "Error from getItems", err });
-        })
-    );
+    .then((item) => res.status(200).send({ data: item }))
+    .catch((error) => {
+      if (error.name === "ValidationError" || error.name === "CastError") {
+        res
+          .status(INVALID_DATA_ERROR.error)
+          .send({ message: "Invalid data provided" });
+      } else if (error.name === "DocumentNotFoundError") {
+        res.status(NOTFOUND_ERROR.error).send({ message: "Item not found" });
+      } else {
+        res
+          .status(DEFAULT_ERROR.error)
+          .send({ message: "An error has occured on the server" });
+      }
+    });
 };
 
 const deleteItem = (req, res) => {
@@ -42,10 +63,23 @@ const deleteItem = (req, res) => {
   console.log(itemId);
 
   ClothingItem.findByIdAndDelete(itemId)
-    .orFail()
-    .then((item) => res.status(204).send({}))
-    .catch((err) => {
-      res.status(500).send({ message: "Error from deleteItem", err });
+    .then((item) => {
+      if (!item) {
+        res.status(NOTFOUND_ERROR.error).send({ message: "Item not found" });
+      } else {
+        res.status(200).send({ data: item });
+      }
+    })
+    .catch((error) => {
+      if (error.name === "CastError") {
+        res
+          .status(INVALID_DATA_ERROR.error)
+          .send({ message: "Invalid item ID" });
+      } else {
+        res
+          .status(DEFAULT_ERROR.error)
+          .send({ message: "An error has occured on the server" });
+      }
     });
 };
 
