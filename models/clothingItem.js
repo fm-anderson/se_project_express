@@ -13,7 +13,7 @@ const clothingItem = new mongoose.Schema({
     required: true,
     enum: ["hot", "cold", "warm"],
   },
-  imageUrl: {
+  imageURL: {
     type: String,
     required: true,
     validate: {

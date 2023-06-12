@@ -1,15 +1,12 @@
 const ClothingItem = require("../models/clothingItem");
 
 const createItem = (req, res) => {
-  console.log(req);
-  console.log(req.body);
-
   const { name, weather, imageURL } = req.body;
+  const owner = req.user._id;
 
-  ClothingItem.create({ name, weather, imageURL })
+  ClothingItem.create({ name, weather, imageURL, owner })
     .then((item) => {
-      console.log(item);
-      res.send({ data: item });
+      res.status(201).send({ data: item });
     })
     .catch((err) => {
       res.status(500).send({ message: "Error from createItem", err });
