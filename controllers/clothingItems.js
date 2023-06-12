@@ -83,4 +83,69 @@ const deleteItem = (req, res) => {
     });
 };
 
-module.exports = { createItem, getItems, updateItem, deleteItem };
+const likeItem = (req, res) => {
+  const { itemId } = req.params;
+  const { _id: userId } = req.user;
+
+  ClothingItem.findByIdAndUpdate(
+    itemId,
+    { $addToSet: { likes: userId } },
+    { new: true }
+  )
+    .then((item) => {
+      if (!item) {
+        res.status(NOTFOUND_ERROR.error).send({ message: "Item not found" });
+      } else {
+        res.status(200).send({ data: item });
+      }
+    })
+    .catch((error) => {
+      if (error.name === "CastError") {
+        res
+          .status(INVALID_DATA_ERROR.error)
+          .send({ message: "Invalid item ID" });
+      } else {
+        res
+          .status(DEFAULT_ERROR.error)
+          .send({ message: "An error has occured on the server" });
+      }
+    });
+};
+
+const dislikeItem = (req, res) => {
+  const { itemId } = req.params;
+  const { _id: userId } = req.user;
+
+  ClothingItem.findByIdAndUpdate(
+    itemId,
+    { $pull: { likes: userId } },
+    { new: true }
+  )
+    .then((item) => {
+      if (!item) {
+        res.status(NOTFOUND_ERROR.error).send({ message: "Item not found" });
+      } else {
+        res.status(200).send({ data: item });
+      }
+    })
+    .catch((error) => {
+      if (error.name === "CastError") {
+        res
+          .status(INVALID_DATA_ERROR.error)
+          .send({ message: "Invalid item ID" });
+      } else {
+        res
+          .status(DEFAULT_ERROR.error)
+          .send({ message: "An error has occured on the server" });
+      }
+    });
+};
+
+module.exports = {
+  createItem,
+  getItems,
+  updateItem,
+  deleteItem,
+  likeItem,
+  dislikeItem,
+};
