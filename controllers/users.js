@@ -92,6 +92,35 @@ const getCurrentUser = (req, res) => {
     });
 };
 
+const updateUser = (req, res) => {
+  const { name, avatar } = req.body;
+  const userId = req.user._id;
+
+  User.findByIdAndUpdate(
+    userId,
+    { name, avatar },
+    { new: true, runValidators: true }
+  )
+    .then((user) => {
+      if (!user) {
+        res.status(NOTFOUND_ERROR.error).send({ message: "User not found" });
+      }
+
+      res.send({ data: user });
+    })
+    .catch((error) => {
+      if (error.name === "ValidationError") {
+        res
+          .status(INVALID_DATA_ERROR.error)
+          .send({ message: "Invalid data provided" });
+      }
+
+      res
+        .status(DEFAULT_ERROR.error)
+        .send({ message: "An error has occurred on the server" });
+    });
+};
+
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send(users))
@@ -132,4 +161,5 @@ module.exports = {
   getUser,
   login,
   getCurrentUser,
+  updateUser,
 };
