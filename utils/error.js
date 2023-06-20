@@ -13,8 +13,14 @@ const DEFAULT_ERROR = {
   error: 500,
 };
 
+const CONFLICT_ERROR = {
+  status: "Conflict",
+  error: 409,
+};
+
 module.exports = {
   INVALID_DATA_ERROR,
   NOTFOUND_ERROR,
   DEFAULT_ERROR,
+  CONFLICT_ERROR,
 };

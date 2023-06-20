@@ -1,26 +1,40 @@
+const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 const {
   DEFAULT_ERROR,
   INVALID_DATA_ERROR,
   NOTFOUND_ERROR,
+  CONFLICT_ERROR,
 } = require("../utils/error");
 
 const createUser = (req, res) => {
-  const { name, avatar } = req.body;
+  const { name, avatar, email, password } = req.body;
 
-  User.create({ name, avatar })
+  if (!password) {
+    res
+      .status(INVALID_DATA_ERROR.error)
+      .send({ message: "Password is required" });
+  }
+
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => User.create({ name, avatar, email, password: hash }))
     .then((user) => {
-      res.status(200).send({ data: user });
+      res.send({ name, avatar, _id: user._id, email: user.email });
     })
     .catch((error) => {
       if (error.name === "ValidationError") {
         res
           .status(INVALID_DATA_ERROR.error)
           .send({ message: "Invalid data provided" });
+      } else if (error.code === 11000) {
+        res
+          .status(CONFLICT_ERROR.error)
+          .send({ message: "Email already exists in database" });
       } else {
         res
           .status(DEFAULT_ERROR.error)
-          .send({ message: "An error has occured on the server" });
+          .send({ message: "An error has occurred on the server" });
       }
     });
 };

@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/fm-anderson/se_project_express#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "express": "^4.18.2",
     "mongoose": "^6.6.1",
     "validator": "^13.9.0"
