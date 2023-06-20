@@ -6,6 +6,7 @@ const {
   NOTFOUND_ERROR,
   CONFLICT_ERROR,
 } = require("../utils/error");
+const { JWT_SECRET } = require("../utils/config");
 
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
@@ -35,6 +36,36 @@ const createUser = (req, res) => {
         res
           .status(DEFAULT_ERROR.error)
           .send({ message: "An error has occurred on the server" });
+      }
+    });
+};
+
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      if (!user) {
+        return res.status(401).send({ message: "Email or Password not found" });
+      }
+      return bcrypt.compare(password, user.password).then((matched) => {
+        if (!matched) {
+          res.status(401).send({ message: "Email or Password not found" });
+        }
+
+        const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+          expiresIn: "7d",
+        });
+        res.send({ token });
+      });
+    })
+    .catch((err) => {
+      if (err.statusCode === 401) {
+        res.status(401).send({ message: "Email or Password not found" });
+      } else {
+        res
+          .status(DEFAULT_ERROR.error)
+          .send({ message: "Internal server error" });
       }
     });
 };
@@ -77,4 +108,5 @@ module.exports = {
   createUser,
   getUsers,
   getUser,
+  login,
 };
