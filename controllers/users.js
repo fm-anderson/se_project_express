@@ -70,6 +70,28 @@ const login = (req, res) => {
     });
 };
 
+const getCurrentUser = (req, res) => {
+  const { _id: userId } = req.user;
+
+  User.findById(userId)
+    .then((user) => {
+      if (!user) {
+        res.status(404).send({ message: "User not found" });
+      } else {
+        res.status(200).send({ data: user });
+      }
+    })
+    .catch((error) => {
+      if (error.name === "CastError") {
+        res.status(400).send({ message: "Invalid user ID" });
+      } else {
+        res
+          .status(500)
+          .send({ message: "An error has occurred on the server" });
+      }
+    });
+};
+
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send(users))
@@ -109,4 +131,5 @@ module.exports = {
   getUsers,
   getUser,
   login,
+  getCurrentUser,
 };
