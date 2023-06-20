@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 
-const User = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     default: "Elise Bouer",
@@ -35,4 +35,28 @@ const User = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("users", User);
+userSchema.statics.findUserByCredentials = function findUserByCredentials(
+  email,
+  password
+) {
+  const UnauthorizedError = new Error("Unauthorized user");
+  UnauthorizedError.statusCode = 401;
+  return this.findOne({ email })
+    .select("+password")
+    .then((user) => {
+      if (!user) {
+        throw UnauthorizedError;
+      }
+
+      return bcrypt.compare(password, user.password).then((matched) => {
+        if (!matched) {
+          throw UnauthorizedError;
+        }
+        return user;
+      });
+    });
+};
+
+const User = mongoose.model("User", userSchema);
+
+module.exports = User;
