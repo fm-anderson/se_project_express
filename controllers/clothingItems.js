@@ -3,6 +3,7 @@ const {
   INVALID_DATA_ERROR,
   NOTFOUND_ERROR,
   DEFAULT_ERROR,
+  FORBIDDEN_ERROR,
 } = require("../utils/error");
 
 const createItem = (req, res) => {
@@ -38,26 +39,42 @@ const getItems = (req, res) => {
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
-  console.log(itemId);
+  const { _id: userId } = req.user;
 
-  ClothingItem.findByIdAndDelete(itemId)
+  ClothingItem.findOne({ _id: itemId })
     .then((item) => {
       if (!item) {
-        res.status(NOTFOUND_ERROR.error).send({ message: "Item not found" });
-      } else {
-        res.send({ data: item });
+        return res
+          .status(NOTFOUND_ERROR.error)
+          .send({ message: "Item not found" });
       }
+
+      if (!item.owner.equals(userId)) {
+        return res.status(FORBIDDEN_ERROR.error).send({
+          message: "Unauthorized: Only the card owner can delete it",
+        });
+      }
+
+      return ClothingItem.deleteOne({ _id: itemId, owner: userId })
+        .then(() => {
+          res.send({ message: "Item deleted successfully" });
+        })
+        .catch(() => {
+          res
+            .status(DEFAULT_ERROR.error)
+            .send({ message: "An error has occurred on the server" });
+        });
     })
     .catch((error) => {
       if (error.name === "CastError") {
-        res
+        return res
           .status(INVALID_DATA_ERROR.error)
           .send({ message: "Invalid item ID" });
-      } else {
-        res
-          .status(DEFAULT_ERROR.error)
-          .send({ message: "An error has occured on the server" });
       }
+
+      return res
+        .status(DEFAULT_ERROR.error)
+        .send({ message: "An error has occurred on the server" });
     });
 };
 

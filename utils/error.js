@@ -3,14 +3,14 @@ const INVALID_DATA_ERROR = {
   error: 400,
 };
 
+const FORBIDDEN_ERROR = {
+  status: "Forbidden",
+  error: 403,
+};
+
 const NOTFOUND_ERROR = {
   status: "NotFound",
   error: 404,
-};
-
-const DEFAULT_ERROR = {
-  status: "InternalServerError",
-  error: 500,
 };
 
 const CONFLICT_ERROR = {
@@ -18,9 +18,15 @@ const CONFLICT_ERROR = {
   error: 409,
 };
 
+const DEFAULT_ERROR = {
+  status: "InternalServerError",
+  error: 500,
+};
+
 module.exports = {
   INVALID_DATA_ERROR,
   NOTFOUND_ERROR,
   DEFAULT_ERROR,
+  FORBIDDEN_ERROR,
   CONFLICT_ERROR,
 };
