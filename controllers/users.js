@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const mongoose = require("mongoose");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const {
@@ -73,7 +74,7 @@ const getCurrentUser = (req, res) => {
       if (!user) {
         res.status(404).send({ message: "User not found" });
       } else {
-        res.status(200).send({ data: user });
+        res.send({ data: user });
       }
     })
     .catch((error) => {
@@ -118,7 +119,7 @@ const updateUser = (req, res) => {
 
 const getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(200).send(users))
+    .then((users) => res.send(users))
     .catch(() => {
       res
         .status(DEFAULT_ERROR.error)
@@ -130,11 +131,11 @@ const getUser = (req, res) => {
   const { userId } = req.params;
 
   User.findById(userId)
-    .then((item) => {
-      if (!item) {
+    .then((user) => {
+      if (!user) {
         res.status(NOTFOUND_ERROR.error).send({ message: "User not found" });
       } else {
-        res.send({ data: item });
+        res.send({ data: user });
       }
     })
     .catch((error) => {
