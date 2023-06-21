@@ -60,14 +60,8 @@ const login = (req, res) => {
         res.send({ token });
       });
     })
-    .catch((err) => {
-      if (err.statusCode === 401) {
-        res.status(401).send({ message: "Email or Password not found" });
-      } else {
-        res
-          .status(DEFAULT_ERROR.error)
-          .send({ message: "Internal server error" });
-      }
+    .catch(() => {
+      res.status(401).send({ message: "Email or Password not found" });
     });
 };
 
