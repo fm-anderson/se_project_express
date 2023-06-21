@@ -1,12 +1,12 @@
 const bcrypt = require("bcryptjs");
-const mongoose = require("mongoose");
-const User = require("../models/user");
 const jwt = require("jsonwebtoken");
+const User = require("../models/user");
 const {
   DEFAULT_ERROR,
   INVALID_DATA_ERROR,
   NOTFOUND_ERROR,
   CONFLICT_ERROR,
+  UNAUTHORIZED_ERROR,
 } = require("../utils/error");
 const { JWT_SECRET } = require("../utils/config");
 
@@ -15,7 +15,7 @@ const createUser = (req, res) => {
 
   if (!password) {
     res
-      .status(INVALID_DATA_ERROR.error)
+      .status(UNAUTHORIZED_ERROR.error)
       .send({ message: "Password is required" });
   }
 
@@ -48,11 +48,15 @@ const login = (req, res) => {
   User.findUserByCredentials(email, password)
     .then((user) => {
       if (!user) {
-        return res.status(401).send({ message: "Email or Password not found" });
+        return res
+          .status(UNAUTHORIZED_ERROR.error)
+          .send({ message: "Email or Password not found" });
       }
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
-          res.status(401).send({ message: "Email or Password not found" });
+          res
+            .status(UNAUTHORIZED_ERROR.error)
+            .send({ message: "Email or Password not found" });
         }
 
         const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
@@ -62,7 +66,9 @@ const login = (req, res) => {
       });
     })
     .catch(() => {
-      res.status(401).send({ message: "Email or Password not found" });
+      res
+        .status(UNAUTHORIZED_ERROR.error)
+        .send({ message: "Email or Password not found" });
     });
 };
 
@@ -72,17 +78,19 @@ const getCurrentUser = (req, res) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: "User not found" });
+        res.status(NOTFOUND_ERROR.error).send({ message: "User not found" });
       } else {
         res.send({ data: user });
       }
     })
     .catch((error) => {
       if (error.name === "CastError") {
-        res.status(400).send({ message: "Invalid user ID" });
+        res
+          .status(INVALID_DATA_ERROR.error)
+          .send({ message: "Invalid user ID" });
       } else {
         res
-          .status(500)
+          .status(DEFAULT_ERROR.error)
           .send({ message: "An error has occurred on the server" });
       }
     });
@@ -109,11 +117,11 @@ const updateUser = (req, res) => {
         res
           .status(INVALID_DATA_ERROR.error)
           .send({ message: "Invalid data provided" });
+      } else {
+        res
+          .status(DEFAULT_ERROR.error)
+          .send({ message: "An error has occurred on the server" });
       }
-
-      res
-        .status(DEFAULT_ERROR.error)
-        .send({ message: "An error has occurred on the server" });
     });
 };
 

@@ -3,6 +3,11 @@ const INVALID_DATA_ERROR = {
   error: 400,
 };
 
+const UNAUTHORIZED_ERROR = {
+  status: "Unauthorized",
+  error: 401,
+};
+
 const FORBIDDEN_ERROR = {
   status: "Forbidden",
   error: 403,
@@ -29,4 +34,5 @@ module.exports = {
   DEFAULT_ERROR,
   FORBIDDEN_ERROR,
   CONFLICT_ERROR,
+  UNAUTHORIZED_ERROR,
 };
