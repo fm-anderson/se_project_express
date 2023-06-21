@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
+const jwt = require("jsonwebtoken");
 const {
   DEFAULT_ERROR,
   INVALID_DATA_ERROR,
@@ -139,7 +140,7 @@ const getUser = (req, res) => {
       if (!item) {
         res.status(NOTFOUND_ERROR.error).send({ message: "User not found" });
       } else {
-        res.status(200).send({ data: item });
+        res.send({ data: item });
       }
     })
     .catch((error) => {
