@@ -23,7 +23,7 @@ app.use(routes);
 
 app.use(errorLogger);
 app.use(errors()); // celebrate error handler
-app.use(errorHandler); // local centralized error handler
+app.use(errorHandler); // centralized error handler
 
 app.listen(PORT, () => {
   console.log(`App listening at port ${PORT}`);
