@@ -14,6 +14,7 @@ This back-end project is focused on creating a server for the [WTWR application]
 ## Running the Project
 
 `npm run start` — to launch the server
+
 `npm run dev` — to launch the server with the hot reload feature
 
 [FrontEnd Repo](https://github.com/fm-anderson/se_project_react)
