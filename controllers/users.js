@@ -5,6 +5,7 @@ const { JWT_SECRET } = require("../utils/config");
 const ConflictError = require("../errors/conflict");
 const NotFoundError = require("../errors/notFound");
 const UnauthorizedError = require("../errors/unauthorized");
+const BadRequestError = require("../errors/invalidData");
 
 const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
@@ -13,9 +14,9 @@ const createUser = (req, res, next) => {
     return next(new UnauthorizedError("Password is required"));
   }
 
-  User.findOne({ email }).then((res) => {
-    if (res) {
-      return next(new ConflictError("Email already exists in database"));
+  User.findOne({ email }).then((userRes) => {
+    if (userRes) {
+      next(new ConflictError("Email already exists in database"));
     }
   });
   return bcrypt
@@ -43,7 +44,7 @@ const login = (req, res, next) => {
       }
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
-          return next(new UnauthorizedError("Email or Password not found"));
+          next(new UnauthorizedError("Email or Password not found"));
         }
 
         const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
@@ -63,7 +64,7 @@ const getCurrentUser = (req, res, next) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        return next(new NotFoundError("User not found"));
+        next(new NotFoundError("User not found"));
       } else {
         res.send({ data: user });
       }
@@ -84,7 +85,7 @@ const updateUser = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        return next(new NotFoundError("User not found"));
+        next(new NotFoundError("User not found"));
       }
       res.send({ data: user });
     })
