@@ -63,7 +63,7 @@ const deleteItem = (req, res, next) => {
   });
 };
 
-const likeItem = (req, res) => {
+const likeItem = (req, res, next) => {
   const { itemId } = req.params;
   const { _id: userId } = req.user;
 
@@ -86,7 +86,7 @@ const likeItem = (req, res) => {
     });
 };
 
-const dislikeItem = (req, res) => {
+const dislikeItem = (req, res, next) => {
   const { itemId } = req.params;
   const { _id: userId } = req.user;
 

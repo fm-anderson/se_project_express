@@ -25,7 +25,11 @@ const createUser = (req, res, next) => {
       res.send({ name, avatar, _id: user._id, email: user.email });
     })
     .catch((error) => {
-      next(error);
+      if (error.name === "ValidationError") {
+        next(new BadRequestError("Validation error"));
+      } else {
+        next(error);
+      }
     });
 };
 
@@ -85,38 +89,16 @@ const updateUser = (req, res, next) => {
       res.send({ data: user });
     })
     .catch((error) => {
-      next(error);
-    });
-};
-
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.send(users))
-    .catch((error) => {
-      next(error);
-    });
-};
-
-const getUser = (req, res) => {
-  const { userId } = req.params;
-
-  User.findById(userId)
-    .then((user) => {
-      if (!user) {
-        return next(new NotFoundError("User not found"));
+      if (error.name === "ValidationError") {
+        next(new BadRequestError("Validation error"));
       } else {
-        res.send({ data: user });
+        next(error);
       }
-    })
-    .catch((error) => {
-      next(error);
     });
 };
 
 module.exports = {
   createUser,
-  getUsers,
-  getUser,
   login,
   getCurrentUser,
   updateUser,
